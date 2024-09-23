@@ -26,25 +26,31 @@ func main() {
 	keysInput, _ := reader.ReadString('\n')
 	keys := strings.Fields(keysInput)
 
-	composedKey := utils.ComposeKey(keys)
-	fmt.Println("Составной ключ:", composedKey)
-
 	fmt.Print("Выберите режим (encrypt/decrypt): ")
 	mode, _ := reader.ReadString('\n')
 	mode = strings.TrimSpace(mode)
 
 	var result string
+
 	switch mode {
 	case "encrypt":
-		result = utils.VigenereEncrypt(plainText, composedKey)
+		result, err = utils.VigenereEncrypt(plainText, keys)
+		if err != nil {
+			fmt.Println("Ошибка при шифровании:", err)
+			return
+		}
 	case "decrypt":
-		result = utils.VigenereDecrypt(plainText, composedKey)
+		result, err = utils.VigenereDecrypt(plainText, keys)
+		if err != nil {
+			fmt.Println("Ошибка при дешифровании:", err)
+			return
+		}
 	default:
 		fmt.Println("Неправильный режим работы")
 		os.Exit(1)
 	}
 
-	outputFileName := "output.txt"
+	outputFileName := "files/output.txt"
 	if err := utils.WriteFile(outputFileName, result); err != nil {
 		fmt.Println("Ошибка записи в файл:", err)
 	} else {

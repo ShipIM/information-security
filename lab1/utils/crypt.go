@@ -1,45 +1,93 @@
 package utils
 
-import "strings"
+import (
+	"errors"
+	"strings"
+)
 
-func VigenereEncrypt(text, key string) string {
-	var result strings.Builder
-	keyLength := len(key)
+var alphabet = []rune("АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ ")
 
-	for i, char := range text {
-		if char >= 'A' && char <= 'Z' {
-			shift := key[i%keyLength] - 'A'
-			result.WriteRune(((char-'A')+rune(shift))%26 + 'A')
-		} else if char >= 'a' && char <= 'z' {
-			shift := key[i%keyLength] - 'a'
-			result.WriteRune(((char-'a')+rune(shift))%26 + 'a')
-		} else {
-			result.WriteRune(char)
-		}
+func VigenereEncrypt(plaintext string, key []string) (string, error) {
+	var encrypted strings.Builder
+	keysValues, err := calculateKeysValues(key)
+	if err != nil {
+		return "", err
 	}
 
-	return result.String()
-}
-
-func VigenereDecrypt(text, key string) string {
-	var result strings.Builder
-	keyLength := len(key)
-
-	for i, char := range text {
-		if char >= 'A' && char <= 'Z' {
-			shift := key[i%keyLength] - 'A'
-			result.WriteRune(((char-'A')-rune(shift)+26)%26 + 'A')
-		} else if char >= 'a' && char <= 'z' {
-			shift := key[i%keyLength] - 'a'
-			result.WriteRune(((char-'a')-rune(shift)+26)%26 + 'a')
-		} else {
-			result.WriteRune(char)
+	i := 0
+	for _, character := range plaintext {
+		plainIndex := indexOfRune(alphabet, character)
+		if plainIndex == -1 {
+			return "", errors.New("буква не найдена в алфавите: " + string(character))
 		}
+
+		keyIndex := plainIndex
+		for _, values := range keysValues {
+			keyIndex += values[i%(len(values))]
+		}
+
+		encryptedIndex := keyIndex % len(alphabet)
+		encrypted.WriteRune(alphabet[encryptedIndex])
+
+		i++
 	}
 
-	return result.String()
+	return encrypted.String(), nil
 }
 
-func ComposeKey(keys []string) string {
-	return strings.Join(keys, "")
+func VigenereDecrypt(encrypted string, key []string) (string, error) {
+	var decrypted strings.Builder
+	keysValues, err := calculateKeysValues(key)
+	if err != nil {
+		return "", err
+	}
+
+	i := 0
+	for _, character := range encrypted {
+		encryptedIndex := indexOfRune(alphabet, character)
+		if encryptedIndex == -1 {
+			return "", errors.New("буква не найдена в алфавите: " + string(character))
+		}
+
+		keyIndex := encryptedIndex
+		for _, values := range keysValues {
+			keyIndex -= values[i%(len(values))]
+			if keyIndex < 0 {
+				keyIndex += len(alphabet)
+			}
+		}
+
+		decryptedIndex := keyIndex % len(alphabet)
+		decrypted.WriteRune(alphabet[decryptedIndex])
+
+		i++
+	}
+
+	return decrypted.String(), nil
+}
+
+func calculateKeysValues(keys []string) ([][]int, error) {
+	var keyIndices [][]int
+	for _, key := range keys {
+		var keyValues []int
+		for _, character := range key {
+			index := indexOfRune(alphabet, character)
+			if index == -1 {
+				return nil, errors.New("буква не найдена в алфавите: " + string(character))
+			}
+			keyValues = append(keyValues, index)
+		}
+		keyIndices = append(keyIndices, keyValues)
+	}
+
+	return keyIndices, nil
+}
+
+func indexOfRune(runes []rune, r rune) int {
+	for i, v := range runes {
+		if v == r {
+			return i
+		}
+	}
+	return -1
 }
