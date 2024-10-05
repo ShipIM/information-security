@@ -55,7 +55,7 @@ func main() {
 	fmt.Println("C1^r mod N =", C1r)
 
 	C2s := new(big.Int).Exp(C2, s, N)
-	fmt.Println("C2^(s) mod N =", C2s)
+	fmt.Println("C2^s mod N =", C2s)
 
 	m := new(big.Int).Mod(new(big.Int).Mul(C1r, C2s), N)
 	fmt.Println("m mod N =", m)
