@@ -9,6 +9,9 @@ staticcheck:
 run-lab1:
 	go run lab1/cmd/main.go
 
+run-lab2:
+	go run lab2/cmd/main.go
+
 run-lab3:
 	go run lab3/cmd/main.go
 

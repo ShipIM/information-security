@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/ShipIM/information-security/lab3/utils"
-	"golang.org/x/text/encoding/charmap"
 )
 
 func main() {
@@ -26,57 +25,63 @@ func main() {
 	e2Str, _ := reader.ReadString('\n')
 	e2Str = strings.TrimSpace(e2Str)
 
-	fmt.Print("Введите C1: ")
-	C1Str, _ := reader.ReadString('\n')
-	C1Str = strings.TrimSpace(C1Str)
+	fmt.Print("Введите путь к файлу C1: ")
+	C1FilePath, _ := reader.ReadString('\n')
+	C1FilePath = strings.TrimSpace(C1FilePath)
 
-	fmt.Print("Введите C2: ")
-	C2Str, _ := reader.ReadString('\n')
-	C2Str = strings.TrimSpace(C2Str)
+	fmt.Print("Введите путь к файлу C2: ")
+	C2FilePath, _ := reader.ReadString('\n')
+	C2FilePath = strings.TrimSpace(C2FilePath)
+
+	C1Values, err := utils.ReadLinesFromFile(C1FilePath)
+	if err != nil {
+		fmt.Println("Ошибка при чтении из файла C1:", err)
+		return
+	}
+
+	C2Values, err := utils.ReadLinesFromFile(C2FilePath)
+	if err != nil {
+		fmt.Println("Ошибка при чтении из файла C2:", err)
+		return
+	}
 
 	N := new(big.Int)
 	e1 := new(big.Int)
 	e2 := new(big.Int)
-	C1 := new(big.Int)
-	C2 := new(big.Int)
 
 	N.SetString(NStr, 10)
 	e1.SetString(e1Str, 10)
 	e2.SetString(e2Str, 10)
-	C1.SetString(C1Str, 10)
-	C2.SetString(C2Str, 10)
 
 	_, r, s := utils.ExtendedGCD(e1, e2)
 
 	fmt.Println("r =", r)
-	fmt.Println("s =", s)
+	fmt.Printf("s =%s\n", s)
 
-	C1r := new(big.Int).Exp(C1, r, N)
-	fmt.Println("C1^r mod N =", C1r)
+	var resultBytes []byte
+	for i := 0; i < len(C1Values) && i < len(C2Values); i++ {
+		C1 := new(big.Int)
+		C2 := new(big.Int)
 
-	C2s := new(big.Int).Exp(C2, s, N)
-	fmt.Println("C2^s mod N =", C2s)
+		C1.SetString(C1Values[i], 10)
+		C2.SetString(C2Values[i], 10)
 
-	m := new(big.Int).Mod(new(big.Int).Mul(C1r, C2s), N)
-	fmt.Println("m mod N =", m)
+		C1r := new(big.Int).Exp(C1, r, N)
+		fmt.Printf("\nC1^r mod N для C1[%d] = %s: %s\n", i, C1Values[i], C1r)
 
-	fmt.Printf("Значение m = %s\n", m.String())
+		C2s := new(big.Int).Exp(C2, s, N)
+		fmt.Printf("C2^s mod N для C2[%d] = %s: %s\n", i, C2Values[i], C2s)
 
-	mBytes := m.Bytes()
-	decodedText, err := decodeCP1251(mBytes)
+		m := new(big.Int).Mod(new(big.Int).Mul(C1r, C2s), N)
+		fmt.Printf("Значение m для C1[%d] и C2[%d] = %s\n", i, i, m.String())
+
+		resultBytes = append(resultBytes, m.Bytes()...)
+	}
+
+	decodedText, err := utils.DecodeCP1251(resultBytes)
 	if err != nil {
 		fmt.Println("Ошибка при декодировании текста:", err)
-		return
 	}
 
-	fmt.Printf("Декодированный текст: %s\n", decodedText)
-}
-
-func decodeCP1251(b []byte) (string, error) {
-	decoded, err := charmap.Windows1251.NewDecoder().Bytes(b)
-	if err != nil {
-		return "", err
-	}
-
-	return string(decoded), nil
+	fmt.Printf("\nДекодированный текст: %s", decodedText)
 }
