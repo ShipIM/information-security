@@ -6,7 +6,10 @@ fmt:
 staticcheck:
 	staticcheck ./...
 
-run:
-	go run cmd/main.go
+run-lab1:
+	go run lab1/cmd/main.go
+
+run-lab3:
+	go run lab3/cmd/main.go
 
 .PHONY: all fmt staticcheck run
