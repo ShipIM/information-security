@@ -40,7 +40,6 @@ func main() {
 	var resultBytes []byte
 	for i := 0; i < len(CValues); i++ {
 		C := new(big.Int)
-
 		C.SetString(CValues[i], 10)
 
 		res := utils.Encode(N, e, C)
