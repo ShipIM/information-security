@@ -19,30 +19,24 @@ func main() {
 	nb := new(big.Int)
 	nb.SetString(nbInput, 10)
 
-	C1List := []utils.Point{
-		{X: big.NewInt(188), Y: big.NewInt(93)},
-		{X: big.NewInt(725), Y: big.NewInt(195)},
-		{X: big.NewInt(346), Y: big.NewInt(242)},
-		{X: big.NewInt(489), Y: big.NewInt(468)},
-		{X: big.NewInt(725), Y: big.NewInt(195)},
-		{X: big.NewInt(745), Y: big.NewInt(210)},
-		{X: big.NewInt(725), Y: big.NewInt(195)},
-		{X: big.NewInt(618), Y: big.NewInt(206)},
-		{X: big.NewInt(286), Y: big.NewInt(136)},
-		{X: big.NewInt(179), Y: big.NewInt(275)},
+	fmt.Print("Введите путь к файлу C1: ")
+	C1FilePath, _ := reader.ReadString('\n')
+	C1FilePath = strings.TrimSpace(C1FilePath)
+
+	fmt.Print("Введите путь к файлу C2: ")
+	C2FilePath, _ := reader.ReadString('\n')
+	C2FilePath = strings.TrimSpace(C2FilePath)
+
+	C1List, err := utils.ReadPointsFromFile(C1FilePath)
+	if err != nil {
+		fmt.Println("Ошибка при чтении из файла C1:", err)
+		return
 	}
 
-	C2List := []utils.Point{
-		{X: big.NewInt(623), Y: big.NewInt(166)},
-		{X: big.NewInt(513), Y: big.NewInt(414)},
-		{X: big.NewInt(461), Y: big.NewInt(4)},
-		{X: big.NewInt(739), Y: big.NewInt(574)},
-		{X: big.NewInt(663), Y: big.NewInt(476)},
-		{X: big.NewInt(724), Y: big.NewInt(522)},
-		{X: big.NewInt(663), Y: big.NewInt(476)},
-		{X: big.NewInt(438), Y: big.NewInt(40)},
-		{X: big.NewInt(546), Y: big.NewInt(670)},
-		{X: big.NewInt(482), Y: big.NewInt(230)},
+	C2List, err := utils.ReadPointsFromFile(C2FilePath)
+	if err != nil {
+		fmt.Println("Ошибка при чтении из файла C2:", err)
+		return
 	}
 
 	PmList := utils.DecryptWord(C1List, C2List, nb)
