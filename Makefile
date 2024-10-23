@@ -21,4 +21,7 @@ run-lab4:
 run-lab5:
 	go run lab5/cmd/main.go
 
+run-lab6:
+	go run lab6/cmd/main.go
+
 .PHONY: all fmt staticcheck run
